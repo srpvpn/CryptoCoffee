@@ -36,16 +36,6 @@ Creators generate a shareable `/tip#...` link, and supporters pay using wallet e
 
 All state is client-side and embedded in hash payload.
 
-## Stack
-
-- React 18 + TypeScript
-- Vite
-- Tailwind CSS
-- React Router v6
-- ethers.js (address validation)
-- @solana/web3.js (Solana extension transfers)
-- qrcode.react
-
 ## Local Development
 
 ```bash
@@ -62,49 +52,11 @@ npm run preview
 
 ## Create Your Tip Page
 
-1. Open `http://localhost:5173/`.
+1. Open `https://your-domain.example`.
 2. Fill profile and wallets in constructor.
 3. Click `Generate my page`.
 4. Copy generated `/tip#...` link.
 5. Open `Preview my page` to test.
-
-## Payment Methods
-
-- Browser extensions
-  - EVM: MetaMask, Rabby, compatible `window.ethereum`
-  - Solana: Phantom, Solflare (native SOL transfer)
-- Mobile deep links
-- QR payment URI fallback
-- Manual wallet address copy
-
-Supported assets are network-dependent:
-
-- Native coin on all supported networks
-- USDT/USDC where contract or mint is configured in [`src/lib/assets.ts`](./src/lib/assets.ts)
-
-## Deploy
-
-### Vercel
-
-1. Import repository.
-2. Framework preset: `Vite`.
-3. Build command: `npm run build`.
-4. Output directory: `dist`.
-5. Deploy.
-
-### GitHub Pages
-
-Repository includes SPA fallback in [`public/404.html`](./public/404.html).
-
-Recommended flow:
-
-1. Build: `npm run build`
-2. Publish `dist/` (Actions or Pages branch)
-
-About `base` in [`vite.config.ts`](./vite.config.ts):
-
-- Current value is `base: './'` for relative assets.
-- If you want explicit repo path, use `base: '/<repo-name>/'` (example: `/CryptoCoffee/`).
 
 ## Security / Privacy Notes
 
