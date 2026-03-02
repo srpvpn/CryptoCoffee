@@ -35,6 +35,12 @@ const FALLBACK_PRICES: PriceMap = {
   'usd-coin': 1
 };
 
+function debugLog(...args: unknown[]): void {
+  if (import.meta.env.DEV) {
+    console.debug(...args);
+  }
+}
+
 type FetchedPrices = {
   usdByCoinId: PriceMap;
   usdPerEur: number;
@@ -66,7 +72,7 @@ function readStoredPrices(): PriceMap | null {
     cachedUsdPerEur = parsed.usdPerEur || 1;
     return parsed.usdByCoinId;
   } catch (error) {
-    console.debug('[prices] failed to read localStorage cache', error);
+    debugLog('[prices] failed to read localStorage cache', error);
     return null;
   }
 }
@@ -82,7 +88,7 @@ function writeStoredPrices(usdByCoinId: PriceMap, usdPerEur: number): void {
       })
     );
   } catch (error) {
-    console.debug('[prices] failed to write localStorage cache', error);
+    debugLog('[prices] failed to write localStorage cache', error);
   }
 }
 
@@ -176,7 +182,7 @@ async function fetchFromProviders(): Promise<FetchedPrices> {
       }
     } catch (error) {
       lastError = error;
-      console.debug('[prices] provider failed', error);
+      debugLog('[prices] provider failed', error);
     }
   }
 
@@ -206,7 +212,7 @@ export async function fetchPrices(): Promise<PriceMap> {
       writeStoredPrices(fetched.usdByCoinId, cachedUsdPerEur);
       return fetched.usdByCoinId;
     } catch (error) {
-      console.debug('[prices] all providers failed, using emergency fallback prices', error);
+      debugLog('[prices] all providers failed, using emergency fallback prices', error);
       cachedPrices = FALLBACK_PRICES;
       cachedUsdPerEur = 1.1;
       return FALLBACK_PRICES;

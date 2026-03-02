@@ -70,7 +70,9 @@ export default function Constructor() {
     const hash = encodeConfig(config);
     const url = `${window.location.origin}/tip#${hash}`;
 
-    console.debug('[constructor] generated config', config);
+    if (import.meta.env.DEV) {
+      console.debug('[constructor] generated config', config);
+    }
 
     setGeneratedUrl(url);
     setError(null);

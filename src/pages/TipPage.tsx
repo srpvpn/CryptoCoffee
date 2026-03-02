@@ -153,7 +153,9 @@ export default function TipPage() {
 
     try {
       const paymentURI = buildPaymentURI(selectedWallet, nextCryptoAmount, selectedNetwork, selectedAsset);
-      console.debug('[tip] payment uri', paymentURI);
+      if (import.meta.env.DEV) {
+        console.debug('[tip] payment uri', paymentURI);
+      }
 
       setModalData({
         wallet: selectedWallet,
