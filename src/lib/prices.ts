@@ -24,20 +24,15 @@ let pendingRequest: Promise<PriceMap> | null = null;
 const STORAGE_KEY = 'cryptocoffee_prices_v1';
 const STORAGE_TTL_MS = 30 * 60 * 1000;
 
-const FALLBACK_PRICES: PriceMap = {
-  bitcoin: 65000,
-  ethereum: 3500,
-  solana: 150,
-  'binancecoin': 600,
-  'matic-network': 1,
-  tron: 0.12,
-  tether: 1,
-  'usd-coin': 1
-};
-
 function debugLog(...args: unknown[]): void {
   if (import.meta.env.DEV) {
     console.debug(...args);
+  }
+}
+
+function warnLog(...args: unknown[]): void {
+  if (import.meta.env.DEV) {
+    console.warn(...args);
   }
 }
 
@@ -212,10 +207,10 @@ export async function fetchPrices(): Promise<PriceMap> {
       writeStoredPrices(fetched.usdByCoinId, cachedUsdPerEur);
       return fetched.usdByCoinId;
     } catch (error) {
-      debugLog('[prices] all providers failed, using emergency fallback prices', error);
-      cachedPrices = FALLBACK_PRICES;
-      cachedUsdPerEur = 1.1;
-      return FALLBACK_PRICES;
+      warnLog('[prices] all providers failed, price data unavailable', error);
+      cachedPrices = null;
+      cachedUsdPerEur = 1;
+      throw error;
     }
   })();
 

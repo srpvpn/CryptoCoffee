@@ -323,7 +323,7 @@ export default function TipPage() {
         <section className="space-y-3">
           <button
             type="button"
-            disabled={priceLoading}
+            disabled={priceLoading || Boolean(priceError) || !prices}
             onClick={handleSend}
             className="w-full rounded-lg bg-accent hover:bg-accent-hover disabled:opacity-70 transition-colors px-4 py-3 font-semibold text-black"
           >
