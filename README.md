@@ -1,68 +1,92 @@
 # CryptoCoffee
 
-CryptoCoffee is a fully static crypto donation app.
-It is an open-source alternative to Buy Me a Coffee with zero backend and zero database.
+> Open-source, fully static crypto tipping app.  
+> No backend. No database. All profile data lives in the URL hash.
+
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+
+CryptoCoffee is an open-source alternative to Buy Me a Coffee for crypto donations.  
+Creators generate a shareable `/tip#...` link, and supporters pay using wallet extension, deep link, or QR code.
+
+## Demo
+
+- Live demo: `https://your-domain.example` (replace with your deployed URL)
+
+## Screenshots
+
+### Constructor
+
+![CryptoCoffee Constructor](./docs/screenshots/constructor.png)
+
+### Tip Page
+
+![CryptoCoffee Tip Page](./docs/screenshots/tip-page.png)
 
 ## How It Works
 
 1. Creator opens `/` and configures profile, wallets, and tip presets.
-2. App serializes config as JSON and stores it in URL hash (`/tip#...`).
-3. Creator shares this URL.
-4. Donor opens `/tip#...`, chooses amount/network/asset, and sends a payment.
-5. Payment is handled via wallet extension, deep link, or QR URI.
+2. App serializes config as JSON and encodes it into Base64 URL hash.
+3. Creator shares a link like `/tip#eyJ...`.
+4. Donor opens the link, selects amount/network/asset, and sends payment.
+5. App builds payment URI and uses extension/deep link/QR flow.
 
-All state is client-side and embedded in the URL hash.
+All state is client-side and embedded in hash payload.
 
-## Tech Stack
+## Stack
 
 - React 18 + TypeScript
 - Vite
 - Tailwind CSS
 - React Router v6
 - ethers.js (address validation)
-- @solana/web3.js (extension transfer flow)
+- @solana/web3.js (Solana extension transfers)
 - qrcode.react
 
-## Quick Start
+## Local Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Build:
+Production build:
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## Create Your Donation Page
+## Create Your Tip Page
 
-1. Run app and open `http://localhost:5173/`.
-2. Fill profile and wallets.
+1. Open `http://localhost:5173/`.
+2. Fill profile and wallets in constructor.
 3. Click `Generate my page`.
-4. Copy generated link (`/tip#...`) and share it.
-5. Open `Preview my page` to test donation flow.
+4. Copy generated `/tip#...` link.
+5. Open `Preview my page` to test.
 
-## Supported Payment Methods
+## Payment Methods
 
-- Browser extensions:
+- Browser extensions
   - EVM: MetaMask, Rabby, compatible `window.ethereum`
-  - Solana: Phantom, Solflare
+  - Solana: Phantom, Solflare (native SOL transfer)
 - Mobile deep links
-- QR payment URI (fallback and universal flow)
+- QR payment URI fallback
 - Manual wallet address copy
 
 Supported assets are network-dependent:
-- Native coin on all supported networks
-- USDT/USDC where contract/mint is configured in `src/lib/assets.ts`
 
-## Deployment
+- Native coin on all supported networks
+- USDT/USDC where contract or mint is configured in [`src/lib/assets.ts`](./src/lib/assets.ts)
+
+## Deploy
 
 ### Vercel
 
-1. Import repo into Vercel.
+1. Import repository.
 2. Framework preset: `Vite`.
 3. Build command: `npm run build`.
 4. Output directory: `dist`.
@@ -70,34 +94,23 @@ Supported assets are network-dependent:
 
 ### GitHub Pages
 
-This repo includes `public/404.html` SPA fallback.
+Repository includes SPA fallback in [`public/404.html`](./public/404.html).
 
-Recommended:
-1. Build static output (`npm run build`).
-2. Publish `dist/` to Pages branch (or use GitHub Actions).
+Recommended flow:
 
-About `base` in `vite.config.ts`:
-- Current config uses `base: './'` for relative assets.
-- If you prefer explicit repo base, set:
-  - `base: '/<repo-name>/'`
-  - Example: `base: '/CryptoCoffee/'`
+1. Build: `npm run build`
+2. Publish `dist/` (Actions or Pages branch)
 
-## Demo
+About `base` in [`vite.config.ts`](./vite.config.ts):
 
-- Live demo: add your deployed URL here.
+- Current value is `base: './'` for relative assets.
+- If you want explicit repo path, use `base: '/<repo-name>/'` (example: `/CryptoCoffee/`).
 
-## Screenshots
+## Security / Privacy Notes
 
-Add screenshots before public launch (recommended):
-- Constructor screen
-- Tip page screen
-- Payment modal (extension / mobile / QR tabs)
-
-## Security & Privacy Notes
-
-- No backend, no database, no wallet custody.
-- User profile config is public in URL hash.
-- Debug logs are DEV-only.
+- No backend and no custody.
+- Config data in URL hash is visible to anyone with the link.
+- Debug logging is development-only.
 
 ## Contributing
 
@@ -105,4 +118,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
-MIT, see [LICENSE](./LICENSE).
+MIT — see [LICENSE](./LICENSE).
