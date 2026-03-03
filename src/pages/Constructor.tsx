@@ -68,7 +68,10 @@ export default function Constructor() {
     };
 
     const hash = encodeConfig(config);
-    const url = `${window.location.origin}/tip#${hash}`;
+    const baseUrl = new URL(import.meta.env.BASE_URL, window.location.origin);
+    const tipUrl = new URL('tip', baseUrl);
+    tipUrl.hash = hash;
+    const url = tipUrl.toString();
 
     if (import.meta.env.DEV) {
       console.debug('[constructor] generated config', config);
