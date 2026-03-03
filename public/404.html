@@ -5,7 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CryptoCoffee Redirect</title>
     <script>
-      window.location.replace('./index.html');
+      // GitHub Pages SPA fallback:
+      // encode the original path into query so index.html can restore it.
+      (function () {
+        var l = window.location;
+        var repoBase = '/CryptoCoffee';
+        var root = l.protocol + '//' + l.host + repoBase + '/';
+        var path = l.pathname.replace(repoBase, '').replace(/^\//, '');
+        var search = l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '';
+        var hash = l.hash || '';
+        l.replace(root + '?/' + path.replace(/&/g, '~and~') + search + hash);
+      })();
     </script>
   </head>
   <body></body>
