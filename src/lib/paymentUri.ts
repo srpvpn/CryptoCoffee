@@ -11,14 +11,13 @@ function toBaseUnits(amount: number, decimals: number): bigint {
   return BigInt(whole || '0') * 10n ** BigInt(decimals) + BigInt(padded || '0');
 }
 
-function toWeiHex(cryptoAmount: number): string {
-  const wei = toBaseUnits(cryptoAmount, 18);
-  return `0x${wei.toString(16)}`;
+function toWeiAmount(cryptoAmount: number): string {
+  return toBaseUnits(cryptoAmount, 18).toString();
 }
 
 function buildTronUri(address: string, trxAmount: number): string {
   const payload = `{"url":"tronscan.org","action":"transferAsset","to":"${address}","amount":"${trimFixed(trxAmount, 6)}","tokenId":"_"}`;
-  return `tronlinkoutside://pull.activity?param=${payload}`;
+  return `tronlinkoutside://pull.activity?param=${encodeURIComponent(payload)}`;
 }
 
 function buildEvmTokenUri(
@@ -83,12 +82,12 @@ export function buildPaymentURI(
     throw new Error('Missing chain id for EVM payment URI');
   }
 
-  const weiHex = toWeiHex(cryptoAmount);
-  return `ethereum:${address}@${network.chainId}?value=${weiHex}`;
+  const weiAmount = toWeiAmount(cryptoAmount);
+  return `ethereum:${address}@${network.chainId}?value=${weiAmount}`;
 }
 
-export function toWeiHexAmount(cryptoAmount: number): string {
-  return toWeiHex(cryptoAmount);
+export function toWeiAmountString(cryptoAmount: number): string {
+  return toWeiAmount(cryptoAmount);
 }
 
 export function toLamports(cryptoAmount: number): string {

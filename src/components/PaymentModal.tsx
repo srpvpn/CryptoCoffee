@@ -4,7 +4,7 @@ import type { Network, PaymentAsset, WalletEntry } from '../types';
 import AssetIcon from './AssetIcon';
 import { truncateAddress } from '../lib/validation';
 import { formatCryptoAmount } from '../lib/prices';
-import { toLamports, toWeiHexAmount } from '../lib/paymentUri';
+import { toLamports, toWeiAmountString } from '../lib/paymentUri';
 import {
   detectPaymentMethod,
   getEvmWalletName,
@@ -63,6 +63,11 @@ function formatFiat(amount: number, currency: 'USD' | 'EUR') {
   }).format(amount);
 }
 
+function formatWalletAmount(amount: number, decimals: number): string {
+  const fixed = amount.toFixed(Math.min(decimals, 8));
+  return fixed.replace(/\.?0+$/, '');
+}
+
 function walletIcon(method: PaymentMethod): string {
   if (method === 'EXTENSION_EVM') return '🦊';
   if (method === 'EXTENSION_SOLANA') return '🟣';
@@ -99,7 +104,7 @@ export default function PaymentModal({
     (networkIsSolana && hasSolana && asset.type === 'native');
 
   const amountLabel = formatCryptoAmount(cryptoAmount, asset.symbol, asset.decimals);
-  const amountValue = amountLabel.split(' ')[0] || '0';
+  const walletAmountValue = formatWalletAmount(cryptoAmount, asset.decimals);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -160,7 +165,7 @@ export default function PaymentModal({
     }
 
     const chainId = network.chainId ?? 1;
-    const weiHex = toWeiHexAmount(cryptoAmount);
+    const weiAmount = toWeiAmountString(cryptoAmount);
     const trustCoinId = TRUST_WALLET_COIN_ID[network.id];
 
     if (asset.type !== 'native') {
@@ -173,18 +178,18 @@ export default function PaymentModal({
     const links: Array<{ label: string; href: string }> = [
       {
         label: 'MetaMask',
-        href: `https://metamask.app.link/send/${address}@${chainId}?value=${weiHex}`
+        href: `https://metamask.app.link/send/${address}@${chainId}?value=${weiAmount}`
       },
       {
         label: 'Coinbase Wallet',
-        href: `https://go.cb-wallet.com/send?address=${encodeURIComponent(address)}&chain=${chainId}&value=${weiHex}`
+        href: `https://go.cb-wallet.com/send?address=${encodeURIComponent(address)}&chain=${chainId}&value=${weiAmount}`
       }
     ];
 
     if (trustCoinId) {
       links.splice(1, 0, {
         label: 'Trust Wallet',
-        href: `https://link.trustwallet.com/send?coin=${trustCoinId}&address=${encodeURIComponent(address)}&amount=${amountValue}`
+        href: `https://link.trustwallet.com/send?coin=${trustCoinId}&address=${encodeURIComponent(address)}&amount=${walletAmountValue}`
       });
     }
 
@@ -192,7 +197,7 @@ export default function PaymentModal({
       primaryLabel: 'Open in wallet app →',
       links
     };
-  }, [wallet.address, network.id, network.chainId, cryptoAmount, amountValue, asset.type]);
+  }, [wallet.address, network.id, network.chainId, cryptoAmount, walletAmountValue, asset.type]);
 
   if (!isOpen) return null;
 
