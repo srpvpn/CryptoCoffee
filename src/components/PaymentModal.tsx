@@ -4,7 +4,7 @@ import type { Network, PaymentAsset, WalletEntry } from '../types';
 import AssetIcon from './AssetIcon';
 import { truncateAddress } from '../lib/validation';
 import { formatCryptoAmount } from '../lib/prices';
-import { toLamports, toWeiAmountString } from '../lib/paymentUri';
+import { toWeiAmountString } from '../lib/paymentUri';
 import {
   detectPaymentMethod,
   getEvmWalletName,
@@ -48,10 +48,12 @@ const EXPLORERS: Record<string, string> = {
   solana: 'https://solscan.io/tx/'
 };
 
-const TRUST_WALLET_COIN_ID: Record<string, string> = {
-  ethereum: '60',
-  bnb: '714',
-  polygon: '966'
+const TRUST_WALLET_ASSET: Record<string, string> = {
+  ethereum: 'c60',
+  bnb: 'c714',
+  polygon: 'c966',
+  arbitrum: 'c60',
+  base: 'c8453'
 };
 
 function formatFiat(amount: number, currency: 'USD' | 'EUR') {
@@ -66,6 +68,13 @@ function formatFiat(amount: number, currency: 'USD' | 'EUR') {
 function formatWalletAmount(amount: number, decimals: number): string {
   const fixed = amount.toFixed(Math.min(decimals, 8));
   return fixed.replace(/\.?0+$/, '');
+}
+
+function toBaseUnitsString(amount: number, decimals: number): string {
+  const normalized = amount.toFixed(decimals);
+  const [whole, fraction = ''] = normalized.split('.');
+  const padded = (fraction + '0'.repeat(decimals)).slice(0, decimals);
+  return (BigInt(whole || '0') * 10n ** BigInt(decimals) + BigInt(padded || '0')).toString();
 }
 
 function walletIcon(method: PaymentMethod): string {
@@ -134,24 +143,25 @@ export default function PaymentModal({
     }
 
     if (network.id === 'solana') {
-      if (asset.type !== 'native') {
-        return {
-          primaryLabel: 'Open in wallet app →',
-          links: [] as Array<{ label: string; href: string }>
-        };
+      const params = new URLSearchParams();
+      params.set('amount', walletAmountValue);
+      if (asset.type === 'token' && asset.mintAddress) {
+        params.set('spl-token', asset.mintAddress);
       }
+      params.set('label', 'CryptoCoffee');
+      params.set('message', 'Thank you');
+      const solanaUri = `solana:${address}?${params.toString()}`;
 
-      const lamports = toLamports(cryptoAmount);
       return {
         primaryLabel: 'Open in wallet app →',
         links: [
           {
             label: 'Phantom',
-            href: `https://phantom.app/ul/v1/transfer?recipient=${encodeURIComponent(address)}&amount=${lamports}`
+            href: solanaUri
           },
           {
             label: 'Solflare',
-            href: `solflare://ul/v1/transfer?recipient=${encodeURIComponent(address)}&amount=${lamports}`
+            href: solanaUri
           }
         ]
       };
@@ -159,45 +169,55 @@ export default function PaymentModal({
 
     if (network.id === 'tron') {
       return {
-        primaryLabel: 'Open in wallet app →',
-        links: [] as Array<{ label: string; href: string }>
+        primaryLabel: 'Open in TronLink →',
+        links: [
+          {
+            label: 'TronLink',
+            href: `tronlinkoutside://pull.activity?param=${encodeURIComponent(
+              JSON.stringify({
+                action: 'open',
+                protocol: 'tronlink',
+                version: '1.0'
+              })
+            )}`
+          }
+        ] as Array<{ label: string; href: string }>
       };
     }
 
     const chainId = network.chainId ?? 1;
-    const weiAmount = toWeiAmountString(cryptoAmount);
-    const trustCoinId = TRUST_WALLET_COIN_ID[network.id];
+    const weiDecimal = toWeiAmountString(cryptoAmount);
+    const trustBaseAsset = TRUST_WALLET_ASSET[network.id] ?? 'c60';
+    const trustAsset =
+      asset.type === 'token' && asset.contractAddress
+        ? `${trustBaseAsset}_t${asset.contractAddress}`
+        : trustBaseAsset;
 
-    if (asset.type !== 'native') {
-      return {
-        primaryLabel: 'Open in wallet app →',
-        links: [] as Array<{ label: string; href: string }>
-      };
-    }
+    const links: Array<{ label: string; href: string }> = [];
 
-    const links: Array<{ label: string; href: string }> = [
-      {
+    if (asset.type === 'native') {
+      links.push({
         label: 'MetaMask',
-        href: `https://metamask.app.link/send/${address}@${chainId}?value=${weiAmount}`
-      },
-      {
-        label: 'Coinbase Wallet',
-        href: `https://go.cb-wallet.com/send?address=${encodeURIComponent(address)}&chain=${chainId}&value=${weiAmount}`
-      }
-    ];
-
-    if (trustCoinId) {
-      links.splice(1, 0, {
-        label: 'Trust Wallet',
-        href: `https://link.trustwallet.com/send?coin=${trustCoinId}&address=${encodeURIComponent(address)}&amount=${walletAmountValue}`
+        href: `https://link.metamask.io/send/${address}@${chainId}?value=${weiDecimal}`
+      });
+    } else if (asset.contractAddress) {
+      const amountBaseUnits = toBaseUnitsString(cryptoAmount, asset.decimals);
+      links.push({
+        label: 'MetaMask',
+        href: `https://link.metamask.io/send/${asset.contractAddress}@${chainId}/transfer?address=${address}&uint256=${amountBaseUnits}`
       });
     }
+
+    links.push({
+      label: 'Trust Wallet',
+      href: `https://link.trustwallet.com/send?asset=${encodeURIComponent(trustAsset)}&address=${encodeURIComponent(address)}&amount=${walletAmountValue}`
+    });
 
     return {
       primaryLabel: 'Open in wallet app →',
       links
     };
-  }, [wallet.address, network.id, network.chainId, cryptoAmount, walletAmountValue, asset.type]);
+  }, [wallet.address, network.id, network.chainId, cryptoAmount, walletAmountValue, asset.type, asset.mintAddress, asset.contractAddress, asset.decimals]);
 
   if (!isOpen) return null;
 
@@ -220,7 +240,8 @@ export default function PaymentModal({
 
   const handleOpenWallet = () => {
     setMobileHint('');
-    window.location.href = paymentURI;
+    const primaryLink = walletLinks.links[0]?.href ?? paymentURI;
+    window.location.href = primaryLink;
 
     window.setTimeout(() => {
       if (document.hasFocus()) {

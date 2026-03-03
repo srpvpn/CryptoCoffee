@@ -35,7 +35,7 @@ function buildEvmTokenUri(
   }
 
   const amountBaseUnits = toBaseUnits(cryptoAmount, asset.decimals).toString();
-  return `ethereum:${asset.contractAddress}@${network.chainId}/transfer?address=${walletAddress}&uint256=${amountBaseUnits}`;
+  return `ethereum:pay-${asset.contractAddress}@${network.chainId}/transfer?address=${walletAddress}&uint256=${amountBaseUnits}`;
 }
 
 function buildSolanaUri(
@@ -43,12 +43,14 @@ function buildSolanaUri(
   asset: PaymentAsset,
   cryptoAmount: number
 ): string {
-  const base = `solana:${walletAddress}?amount=${trimFixed(cryptoAmount, asset.decimals)}`;
-  const withToken = asset.type === 'token' && asset.mintAddress
-    ? `${base}&spl-token=${asset.mintAddress}`
-    : base;
-
-  return `${withToken}&label=CryptoCoffee&message=Thank+you`;
+  const params = new URLSearchParams();
+  params.set('amount', trimFixed(cryptoAmount, asset.decimals));
+  if (asset.type === 'token' && asset.mintAddress) {
+    params.set('spl-token', asset.mintAddress);
+  }
+  params.set('label', 'CryptoCoffee');
+  params.set('message', 'Thank you');
+  return `solana:${walletAddress}?${params.toString()}`;
 }
 
 export function buildPaymentURI(
@@ -83,7 +85,7 @@ export function buildPaymentURI(
   }
 
   const weiAmount = toWeiAmount(cryptoAmount);
-  return `ethereum:${address}@${network.chainId}?value=${weiAmount}`;
+  return `ethereum:pay-${address}@${network.chainId}?value=${weiAmount}`;
 }
 
 export function toWeiAmountString(cryptoAmount: number): string {
