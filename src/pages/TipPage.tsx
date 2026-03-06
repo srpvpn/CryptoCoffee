@@ -5,6 +5,7 @@ import AssetIcon from '../components/AssetIcon';
 import DonorAvatar from '../components/DonorAvatar';
 import NetworkIcon from '../components/NetworkIcon';
 import PaymentModal from '../components/PaymentModal';
+import Seo from '../components/Seo';
 import { decodeConfig } from '../lib/encode';
 import { getAssetsForNetwork } from '../lib/assets';
 import { buildPaymentURI } from '../lib/paymentUri';
@@ -87,6 +88,11 @@ export default function TipPage() {
   if (!config) {
     return (
       <div className="min-h-screen bg-bg text-text flex items-center justify-center p-4">
+        <Seo
+          title="CryptoCoffee | Invalid Tip Link"
+          description="This CryptoCoffee tip link is invalid or missing configuration."
+          path="/tip"
+        />
         <div className="app-card p-6 max-w-md w-full text-center">
           <h1 className="text-2xl font-bold mb-2">Invalid link</h1>
           <p className="text-muted mb-5">This donation link is missing or corrupted.</p>
@@ -186,6 +192,11 @@ export default function TipPage() {
 
   return (
     <div className="min-h-screen bg-bg text-text px-4 py-8">
+      <Seo
+        title={`${config.name} | CryptoCoffee`}
+        description={config.description || `Support ${config.name} with a crypto tip using CryptoCoffee.`}
+        path="/tip"
+      />
       <div className="max-w-lg mx-auto app-card p-5 sm:p-6 space-y-5">
         <header className="text-center">
           {config.avatarUrl && isValidImageUrl(config.avatarUrl) ? (

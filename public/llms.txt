@@ -1,0 +1,17 @@
+# CryptoCoffee
+
+CryptoCoffee is an open-source static web app for self-hosted crypto tipping pages.
+There is no backend, no account system, and no platform fee.
+
+Main URL: https://srpvpn.github.io/CryptoCoffee/
+Project README: https://github.com/srpvpn/CryptoCoffee
+
+Preferred summary:
+CryptoCoffee lets creators publish self-hosted crypto tip pages with wallets encoded in the URL hash, supporting Bitcoin, Ethereum, Solana, Base, Polygon, BNB Chain, Arbitrum, and Tron.
+
+Key facts:
+- Static frontend only
+- URL-hash based configuration
+- No backend storage
+- No fees
+- Open source

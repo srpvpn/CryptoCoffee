@@ -1,0 +1,31 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#0E1116"/>
+  <rect x="44" y="44" width="1112" height="542" rx="32" fill="url(#bg)"/>
+  <circle cx="962" cy="160" r="180" fill="#F4B942" fill-opacity="0.14"/>
+  <circle cx="1080" cy="514" r="132" fill="#38BDF8" fill-opacity="0.14"/>
+  <rect x="108" y="124" width="122" height="122" rx="28" fill="#F4B942"/>
+  <path d="M152 184C152 156.386 174.386 134 202 134V134C229.614 134 252 156.386 252 184V184C252 211.614 229.614 234 202 234V234C174.386 234 152 211.614 152 184V184Z" fill="#0E1116"/>
+  <path d="M190.6 160H214.4C226.329 160 236 169.671 236 181.6C236 193.529 226.329 203.2 214.4 203.2H190.6V160Z" fill="#F4B942"/>
+  <path d="M178 203.2H214.4C223.568 203.2 231 210.632 231 219.8C231 228.968 223.568 236.4 214.4 236.4H178V203.2Z" fill="#F4B942"/>
+  <text x="278" y="188" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="800">CryptoCoffee</text>
+  <text x="112" y="304" fill="#D2D8E2" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="500">
+    Open-source static crypto tipping pages
+  </text>
+  <text x="112" y="362" fill="#9AA4B2" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="500">
+    No backend. No fees. Bitcoin, Ethereum, Solana and more.
+  </text>
+  <rect x="112" y="428" width="288" height="66" rx="18" fill="#F4B942"/>
+  <text x="158" y="470" fill="#0E1116" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="800">
+    Self-hosted
+  </text>
+  <rect x="420" y="428" width="248" height="66" rx="18" fill="#131923" stroke="#2A3442"/>
+  <text x="475" y="470" fill="#F8FAFC" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">
+    URL-hash config
+  </text>
+  <defs>
+    <linearGradient id="bg" x1="112" y1="80" x2="1091" y2="586" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111827"/>
+      <stop offset="1" stop-color="#0B1220"/>
+    </linearGradient>
+  </defs>
+</svg>

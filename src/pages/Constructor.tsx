@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import NetworkIcon from '../components/NetworkIcon';
+import Seo from '../components/Seo';
 import ShareLink from '../components/ShareLink';
 import WalletForm from '../components/WalletForm';
 import { encodeConfig } from '../lib/encode';
@@ -83,6 +84,11 @@ export default function Constructor() {
 
   return (
     <div className="min-h-screen bg-bg text-text">
+      <Seo
+        title="CryptoCoffee | Create Static Crypto Tip Pages"
+        description="Create open-source static crypto tipping pages with no backend, no fees, and support for Bitcoin, Ethereum, Solana and more."
+        path="/"
+      />
       <div className="mx-auto max-w-3xl p-4 sm:p-6 lg:p-8">
         <section className="app-card p-5 sm:p-6 space-y-6">
           <div>
