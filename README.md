@@ -73,10 +73,6 @@ npm run preview
 - Config data in URL hash is visible to anyone with the link.
 - Debug logging is development-only.
 
-## SEO Ops
-
-For post-deploy indexing and validation steps, see [docs/seo-checklist.md](./docs/seo-checklist.md).
-
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
