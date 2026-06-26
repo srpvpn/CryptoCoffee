@@ -1,5 +1,6 @@
 import { ChangeEvent, useRef, useState } from 'react';
 import NetworkIcon from '../components/NetworkIcon';
+import ProfilePreview from '../components/ProfilePreview';
 import Seo from '../components/Seo';
 import ShareLink from '../components/ShareLink';
 import WalletForm from '../components/WalletForm';
@@ -9,6 +10,36 @@ import { NETWORKS, type UserConfig, type WalletEntry } from '../types';
 
 const DEFAULT_PRESETS = [5, 10, 20];
 const PROFILE_EXPORT_VERSION = 1;
+
+const TEMPLATE_GALLERY = [
+  {
+    id: 'creator',
+    title: 'Creator',
+    description: 'For artists, writers, streamers and indie makers.',
+    name: 'Indie Creator',
+    profileDescription: 'Support my next creative project with a small crypto tip.',
+    presets: [5, 15, 30],
+    currency: 'USD' as const
+  },
+  {
+    id: 'developer',
+    title: 'Open-source dev',
+    description: 'For GitHub projects, tools and maintainers.',
+    name: 'Open Source Builder',
+    profileDescription: 'If this project saved you time, you can fuel the next release here.',
+    presets: [10, 25, 50],
+    currency: 'USD' as const
+  },
+  {
+    id: 'coffee',
+    title: 'Coffee page',
+    description: 'Simple Buy Me a Coffee style profile.',
+    name: 'Buy me a coffee',
+    profileDescription: 'Like my work? Send a coffee-sized crypto tip.',
+    presets: [3, 5, 10],
+    currency: 'EUR' as const
+  }
+];
 
 type ExportedProfile = {
   version: number;
@@ -118,6 +149,17 @@ export default function Constructor() {
     setProfileMessage(null);
   };
 
+  const handleApplyTemplate = (template: (typeof TEMPLATE_GALLERY)[number]) => {
+    setName(template.name);
+    setDescription(template.profileDescription);
+    setAvatarUrl('');
+    setPresets(template.presets);
+    setCurrency(template.currency);
+    setGeneratedUrl('');
+    setError(null);
+    setProfileMessage(`${template.title} template applied. Add your wallets, then generate a link.`);
+  };
+
   const handleExportProfile = () => {
     const cleanName = name.trim();
 
@@ -208,6 +250,8 @@ export default function Constructor() {
     setProfileMessage(null);
   };
 
+  const previewConfig = currentConfig();
+
   return (
     <div className="min-h-screen bg-bg text-text">
       <Seo
@@ -215,196 +259,220 @@ export default function Constructor() {
         description="Create open-source static crypto tipping pages with no backend, no fees, and support for Bitcoin, Ethereum, Solana and more."
         path="/"
       />
-      <div className="mx-auto max-w-3xl p-4 sm:p-6 lg:p-8">
-        <section className="app-card p-5 sm:p-6 space-y-6">
-          <div>
-            <h1 className="text-2xl font-bold">Create your CryptoCoffee page</h1>
-            <p className="text-sm text-muted mt-1">Generate a fully static donation link in your URL hash.</p>
-          </div>
-
-          <div className="rounded-xl border border-border bg-bg/60 p-4 space-y-3">
+      <div className="mx-auto max-w-6xl p-4 sm:p-6 lg:p-8">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
+          <section className="app-card p-5 sm:p-6 space-y-6">
             <div>
-              <p className="text-sm font-semibold">Profile backup</p>
-              <p className="text-xs text-muted mt-1">Export this setup as JSON or import a saved profile later.</p>
+              <h1 className="text-2xl font-bold">Create your CryptoCoffee page</h1>
+              <p className="text-sm text-muted mt-1">Generate a fully static donation link in your URL hash.</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <button
-                type="button"
-                onClick={handleExportProfile}
-                className="rounded-lg border border-border px-4 py-2 text-sm text-text hover:border-accent"
-              >
-                Export JSON
-              </button>
-              <button
-                type="button"
-                onClick={handleImportClick}
-                className="rounded-lg border border-border px-4 py-2 text-sm text-text hover:border-accent"
-              >
-                Import JSON
-              </button>
-              <input
-                ref={importInputRef}
-                type="file"
-                accept="application/json,.json"
-                onChange={handleImportProfile}
-                className="hidden"
-              />
-            </div>
-            {profileMessage && <p className="text-xs text-success">{profileMessage}</p>}
-          </div>
 
-          <div className="space-y-4">
-            <div>
-              <p className="text-xs uppercase tracking-wider text-muted font-semibold mb-3">Profile</p>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm text-muted block mb-2">Name *</label>
-                  <input
-                    value={name}
-                    onChange={(event) => {
-                      setName(event.target.value);
-                      setProfileMessage(null);
-                    }}
-                    placeholder="Satoshi Nakamoto"
-                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm text-muted flex items-center justify-between mb-2">
-                    <span>Description</span>
-                    <span className="text-xs">{description.length}/200</span>
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(event) => {
-                      setDescription(event.target.value.slice(0, 200));
-                      setProfileMessage(null);
-                    }}
-                    placeholder="What are you building?"
-                    rows={4}
-                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm text-muted block mb-2">Avatar URL (optional)</label>
-                  <input
-                    value={avatarUrl}
-                    onChange={(event) => {
-                      setAvatarUrl(event.target.value);
-                      setProfileMessage(null);
-                    }}
-                    placeholder="https://example.com/avatar.png"
-                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
-                  />
-                  {avatarUrl && !avatarIsValid && (
-                    <p className="text-xs text-danger mt-1">Please use a valid http(s) URL.</p>
-                  )}
-                  {avatarIsValid && (
-                    <img
-                      src={avatarUrl}
-                      alt="avatar url preview"
-                      className="mt-2 h-14 w-14 rounded-xl border border-border object-cover"
-                    />
-                  )}
-                </div>
+            <div className="rounded-xl border border-border bg-bg/60 p-4 space-y-3">
+              <div>
+                <p className="text-sm font-semibold">Template gallery</p>
+                <p className="text-xs text-muted mt-1">Start from a polished profile and customize it with your own wallets.</p>
               </div>
-            </div>
-
-            <div>
-              <p className="text-xs uppercase tracking-wider text-muted font-semibold mb-3">Wallets</p>
-
-              <div className="space-y-2">
-                {wallets.map((wallet, index) => (
-                  <div
-                    key={`${wallet.networkId}-${wallet.address}-${index}`}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg p-3"
+              <div className="grid gap-2 sm:grid-cols-3">
+                {TEMPLATE_GALLERY.map((template) => (
+                  <button
+                    key={template.id}
+                    type="button"
+                    onClick={() => handleApplyTemplate(template)}
+                    className="rounded-lg border border-border bg-bg p-3 text-left hover:border-accent"
                   >
-                    <div className="min-w-0 flex items-center gap-3">
-                      <NetworkIcon networkId={wallet.networkId} className="h-5 w-5" />
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium">{networkName(wallet.networkId)}</div>
-                        <div className="text-xs text-muted font-mono">{truncateAddress(wallet.address)}</div>
-                        {wallet.label && <div className="text-xs text-muted">{wallet.label}</div>}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteWallet(index)}
-                      className="text-xs text-danger hover:underline"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                    <p className="text-sm font-semibold">{template.title}</p>
+                    <p className="text-xs text-muted mt-1">{template.description}</p>
+                  </button>
                 ))}
               </div>
-
-              <button
-                type="button"
-                onClick={() => setWalletFormOpen((open) => !open)}
-                className="mt-3 rounded-lg border border-border px-4 py-2 text-sm text-text hover:border-accent"
-              >
-                {walletFormOpen ? 'Close wallet form' : 'Add wallet'}
-              </button>
-
-              {walletFormOpen && (
-                <WalletForm
-                  onAdd={handleAddWallet}
-                  onCancel={() => setWalletFormOpen(false)}
-                  initialNetworkId={wallets[0]?.networkId || 'ethereum'}
-                />
-              )}
             </div>
 
-            <div>
-              <p className="text-xs uppercase tracking-wider text-muted font-semibold mb-3">Tip presets</p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                {presets.map((preset, index) => (
-                  <input
-                    key={index}
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={preset || ''}
-                    onChange={(event) => updatePreset(index, event.target.value)}
-                    placeholder={`Preset ${index + 1}`}
-                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
-                  />
-                ))}
+            <div className="rounded-xl border border-border bg-bg/60 p-4 space-y-3">
+              <div>
+                <p className="text-sm font-semibold">Profile backup</p>
+                <p className="text-xs text-muted mt-1">Export this setup as JSON or import a saved profile later.</p>
               </div>
-
-              <div className="mt-3">
-                <label className="text-sm text-muted block mb-2">Currency</label>
-                <select
-                  value={currency}
-                  onChange={(event) => {
-                    setCurrency(event.target.value as 'USD' | 'EUR');
-                    setProfileMessage(null);
-                  }}
-                  className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  type="button"
+                  onClick={handleExportProfile}
+                  className="rounded-lg border border-border px-4 py-2 text-sm text-text hover:border-accent"
                 >
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                </select>
+                  Export JSON
+                </button>
+                <button
+                  type="button"
+                  onClick={handleImportClick}
+                  className="rounded-lg border border-border px-4 py-2 text-sm text-text hover:border-accent"
+                >
+                  Import JSON
+                </button>
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  accept="application/json,.json"
+                  onChange={handleImportProfile}
+                  className="hidden"
+                />
               </div>
+              {profileMessage && <p className="text-xs text-success">{profileMessage}</p>}
             </div>
 
-            <div>
-              <button
-                type="button"
-                onClick={handleGenerate}
-                className="w-full rounded-lg bg-accent hover:bg-accent-hover transition-colors px-4 py-3 text-black font-semibold"
-              >
-                Generate my page
-              </button>
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted font-semibold mb-3">Profile</p>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm text-muted block mb-2">Name *</label>
+                    <input
+                      value={name}
+                      onChange={(event) => {
+                        setName(event.target.value);
+                        setProfileMessage(null);
+                      }}
+                      placeholder="Satoshi Nakamoto"
+                      className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
 
-              {error && <p className="text-sm text-danger mt-2">{error}</p>}
+                  <div>
+                    <label className="text-sm text-muted flex items-center justify-between mb-2">
+                      <span>Description</span>
+                      <span className="text-xs">{description.length}/200</span>
+                    </label>
+                    <textarea
+                      value={description}
+                      onChange={(event) => {
+                        setDescription(event.target.value.slice(0, 200));
+                        setProfileMessage(null);
+                      }}
+                      placeholder="What are you building?"
+                      rows={4}
+                      className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm text-muted block mb-2">Avatar URL (optional)</label>
+                    <input
+                      value={avatarUrl}
+                      onChange={(event) => {
+                        setAvatarUrl(event.target.value);
+                        setProfileMessage(null);
+                      }}
+                      placeholder="https://example.com/avatar.png"
+                      className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                    {avatarUrl && !avatarIsValid && (
+                      <p className="text-xs text-danger mt-1">Please use a valid http(s) URL.</p>
+                    )}
+                    {avatarIsValid && (
+                      <img
+                        src={avatarUrl}
+                        alt="avatar url preview"
+                        className="mt-2 h-14 w-14 rounded-xl border border-border object-cover"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted font-semibold mb-3">Wallets</p>
+
+                <div className="space-y-2">
+                  {wallets.map((wallet, index) => (
+                    <div
+                      key={`${wallet.networkId}-${wallet.address}-${index}`}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg p-3"
+                    >
+                      <div className="min-w-0 flex items-center gap-3">
+                        <NetworkIcon networkId={wallet.networkId} className="h-5 w-5" />
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium">{networkName(wallet.networkId)}</div>
+                          <div className="text-xs text-muted font-mono">{truncateAddress(wallet.address)}</div>
+                          {wallet.label && <div className="text-xs text-muted">{wallet.label}</div>}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteWallet(index)}
+                        className="text-xs text-danger hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setWalletFormOpen((open) => !open)}
+                  className="mt-3 rounded-lg border border-border px-4 py-2 text-sm text-text hover:border-accent"
+                >
+                  {walletFormOpen ? 'Close wallet form' : 'Add wallet'}
+                </button>
+
+                {walletFormOpen && (
+                  <WalletForm
+                    onAdd={handleAddWallet}
+                    onCancel={() => setWalletFormOpen(false)}
+                    initialNetworkId={wallets[0]?.networkId || 'ethereum'}
+                  />
+                )}
+              </div>
+
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted font-semibold mb-3">Tip presets</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {presets.map((preset, index) => (
+                    <input
+                      key={index}
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={preset || ''}
+                      onChange={(event) => updatePreset(index, event.target.value)}
+                      placeholder={`Preset ${index + 1}`}
+                      className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  ))}
+                </div>
+
+                <div className="mt-3">
+                  <label className="text-sm text-muted block mb-2">Currency</label>
+                  <select
+                    value={currency}
+                    onChange={(event) => {
+                      setCurrency(event.target.value as 'USD' | 'EUR');
+                      setProfileMessage(null);
+                    }}
+                    className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                  >
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  className="w-full rounded-lg bg-accent hover:bg-accent-hover transition-colors px-4 py-3 text-black font-semibold"
+                >
+                  Generate my page
+                </button>
+
+                {error && <p className="text-sm text-danger mt-2">{error}</p>}
+              </div>
+
+              {generatedUrl && <ShareLink url={generatedUrl} />}
             </div>
+          </section>
 
-            {generatedUrl && <ShareLink url={generatedUrl} />}
-          </div>
-        </section>
+          <ProfilePreview config={previewConfig} />
+        </div>
       </div>
     </div>
   );
